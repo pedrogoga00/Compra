@@ -1,201 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Despensa Inteligente (Offline)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#3b82f6', // blue-500
-                        secondary: '#10b981', // emerald-500
-                        danger: '#ef4444', // red-500
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Estilo para iconos/SVG */
-        .icon {
-            display: inline-block;
-            width: 1.5rem;
-            height: 1.5rem;
-            vertical-align: middle;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        /* Estilo para el modo de edición */
-        .stocked-item {
-            opacity: 0.8;
-            background-color: #f0fdf4; /* light green */
-        }
-        /* Estilo para el modo de edición */
-        .needed-item {
-            opacity: 1;
-            font-weight: 600;
-            background-color: #fef2f2; /* light red/pink */
-            border-left: 4px solid #ef4444; /* red-500 */
-        }
-        .tab-button.active {
-            border-color: #3b82f6;
-            background-color: #3b82f6;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen font-sans">
-
-    <div id="app" class="max-w-4xl mx-auto p-4 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-primary mb-2">Mi Despensa y Lista (OFFLINE)</h1>
-            <p class="text-gray-600">Gestor local de productos por zona (guardado en tu navegador).</p>
-            <div class="mt-2 p-2 bg-gray-100 rounded-lg text-xs text-gray-500">
-                Tu ID de Sesión: <span id="user-id-display" class="font-mono text-gray-800 break-all">LOCAL_STORAGE</span>
-            </div>
-        </header>
-
-        <nav class="mb-8 flex space-x-2 p-1 bg-white rounded-xl shadow-md overflow-x-auto">
-            <button id="tab-pantry-btn" onclick="changeTab('pantry')" 
-                    class="tab-button active flex-1 py-3 px-4 rounded-lg font-semibold text-gray-700 transition duration-200 border-2 border-transparent hover:bg-gray-100 md:text-base text-sm">
-                Despensa (Inventario Completo)
-            </button>
-            <button id="tab-shopping-btn" onclick="changeTab('shopping')" 
-                    class="tab-button flex-1 py-3 px-4 rounded-lg font-semibold text-gray-700 transition duration-200 border-2 border-transparent hover:bg-gray-100 md:text-base text-sm">
-                Lista de la Compra
-            </button>
-            <button id="tab-history-btn" onclick="changeTab('history')" 
-                    class="tab-button flex-1 py-3 px-4 rounded-lg font-semibold text-gray-700 transition duration-200 border-2 border-transparent hover:bg-gray-100 md:text-base text-sm">
-                Historial Semanal
-            </button>
-        </nav>
-
-        <main class="tab-container">
-
-            <div id="pantry-tab" class="tab-content">
-                
-                <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                        <svg class="icon mr-2 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-                        Añadir Nuevo Producto
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" id="product-name" placeholder="Ej: Leche, Pasta, Huevos..."
-                            class="p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary col-span-1 md:col-span-1" required>
-                        <select id="product-zone"
-                                class="p-3 border border-gray-300 rounded-lg bg-white focus:ring-primary focus:border-primary col-span-1 md:col-span-1 add-zone-select">
-                            </select>
-                        <button onclick="addItem()" id="add-button"
-                                class="bg-secondary text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 transition duration-200 shadow-md">
-                            Añadir a la Despensa
-                        </button>
-                    </div>
-                </section>
-
-                <section class="mb-8 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                    <button onclick="archiveAndReset()" id="archive-button"
-                            class="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg flex items-center justify-center">
-                        <svg class="icon w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 21v-7m4 7v-4m4 4v-9m4 9v-6m0 -4l4 -4l-4 -4m-4 -1h-4a3 3 0 0 0 -3 3v11a3 3 0 0 0 3 3h12a3 3 0 0 0 3 -3v-7"></path></svg>
-                        Archivar y Resetear Semana
-                    </button>
-                    <button onclick="showZoneManagementModal()" id="manage-zones-button"
-                            class="w-full md:w-auto bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition duration-200 shadow-md flex items-center justify-center">
-                        <svg class="icon w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15l-3.5 -5l2.5 -2.5l2.5 2.5l3.5 5h-5m0 0l-1 -1m4 -1l1 -1"/></svg>
-                        Gestionar Zonas
-                    </button>
-                </section>
-
-                <section class="bg-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                        <svg class="icon mr-2 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20L18 12L10 4"/></svg>
-                        Inventario por Zonas (Editar/Eliminar)
-                    </h2>
-                    <div id="pantry-list">
-                        </div>
-                </section>
-            </div>
-
-            <div id="shopping-tab" class="tab-content hidden">
-                <section class="bg-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold text-danger mb-4 flex items-center">
-                        <svg class="icon w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19a2 2 0 1 0 0 4a2 2 0 0 0 0 -4zM17 19a2 2 0 1 0 0 4a2 2 0 0 0 0 -4zM17 17h-11v-14h-2m4 0l3 5h9l4 -9h-2m-1 8h-11l-3 -5" /></svg>
-                        Productos Necesarios
-                    </h2>
-                    <p class="text-gray-600 mb-4">Haz clic para marcar como comprado (pasa a Despensa).</p>
-                    <div id="shopping-list">
-                        </div>
-                </section>
-            </div>
-
-            <div id="history-tab" class="tab-content hidden">
-                <section class="bg-white p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
-                        <svg class="icon w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6 -3a9 9 0 1 1 -9 -9h1" /></svg>
-                        Registro de Archivos Semanales
-                    </h2>
-                    <div id="history-list">
-                        <p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">Cargando historial...</p>
-                    </div>
-                </section>
-            </div>
-            
-        </main>
-
-        <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="closeModal()">
-            <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full" onclick="event.stopPropagation()">
-                <h3 id="modal-title" class="text-xl font-bold mb-3 text-primary"></h3>
-                <p id="modal-body" class="text-gray-700 mb-4"></p>
-                <button onclick="closeModal()" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-
-        <div id="zone-management-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="closeZoneManagementModal()">
-            <div class="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full" onclick="event.stopPropagation()">
-                <h3 class="text-2xl font-bold mb-4 text-primary">Gestión de Zonas Personalizadas</h3>
-                
-                <div class="mb-6 border-b pb-4">
-                    <h4 class="text-lg font-semibold mb-2 text-gray-700">Añadir Nueva Zona</h4>
-                    <div class="flex space-x-2">
-                        <input type="text" id="new-zone-input" placeholder="Ej: Nevera, Armario, Especieros..."
-                            class="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" maxlength="20">
-                        <button onclick="addCustomZone()" 
-                                class="bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-emerald-600 transition duration-200">
-                            Añadir
-                        </button>
-                    </div>
-                </div>
-
-                <div class="max-h-60 overflow-y-auto">
-                    <h4 class="text-lg font-semibold mb-2 text-gray-700">Zonas Actuales</h4>
-                    <ul id="zones-list" class="space-y-2">
-                        </ul>
-                </div>
-                
-                <button onclick="closeZoneManagementModal()" class="mt-6 bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<script>
         // --- VARIABLES GLOBALES Y UTILIDADES ---
         const PANTRY_KEY = 'miDespensa_items';
         const ZONES_KEY = 'miDespensa_zones';
         const HISTORY_KEY = 'miDespensa_history';
-        const DEFAULT_ZONES = ['Cocina', 'Baño', 'Despensa']; // Zonas por defecto para empezar
+        // Zonas por defecto para empezar (incluye las que has mencionado)
+        const INITIAL_DEFAULT_ZONES = ['Nevera', 'Armario', 'Congelador', 'Especieros', 'Baño']; 
         
         let allItems = [];
         let allZones = [];
@@ -218,13 +27,16 @@
         function loadAllFromLocalStorage() {
             try {
                 allItems = JSON.parse(localStorage.getItem(PANTRY_KEY) || '[]');
-                allZones = JSON.parse(localStorage.getItem(ZONES_KEY) || '[]').sort();
+                const savedZones = JSON.parse(localStorage.getItem(ZONES_KEY) || '[]');
                 history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
                 
-                // Si no hay zonas, inicializa con las por defecto
-                if (allZones.length === 0) {
-                    allZones = [...DEFAULT_ZONES];
-                    saveZones();
+                // Si no hay zonas guardadas, inicializa con las por defecto.
+                if (savedZones.length === 0) {
+                    allZones = [...INITIAL_DEFAULT_ZONES].sort();
+                    saveZones(); 
+                } else {
+                    // Si ya hay zonas, las carga y las ordena.
+                    allZones = savedZones.sort();
                 }
 
                 // Renderiza la interfaz inicial
@@ -265,6 +77,7 @@
             const newZoneName = document.getElementById('new-zone-input').value.trim();
             if (!newZoneName) return;
 
+            // Evitar duplicados
             if (allZones.map(z => z.toLowerCase()).includes(newZoneName.toLowerCase())) {
                 showModal("Error", `La zona "${newZoneName}" ya existe.`, 'error');
                 return;
@@ -279,6 +92,14 @@
 
         window.deleteCustomZone = function(zoneToDelete) {
             const initialLength = allZones.length;
+            
+            // Advertencia para zonas por defecto
+            if (INITIAL_DEFAULT_ZONES.includes(zoneToDelete)) {
+                if (!confirm(`"${zoneToDelete}" es una zona predeterminada. ¿Estás seguro de que quieres eliminarla? Los productos se moverán a 'Otros'.`)) {
+                    return;
+                }
+            }
+            
             allZones = allZones.filter(z => z !== zoneToDelete);
             
             if (allZones.length < initialLength) {
@@ -292,6 +113,7 @@
                 saveZones();
                 showModal("Éxito", `Zona "${zoneToDelete}" eliminada. Los productos se movieron a "Otros".`, 'success');
             } else {
+                // Esto solo debería ocurrir si se intenta eliminar una zona que no existe, lo cual es raro
                 showModal("Error", "No se pudo eliminar la zona.", 'error');
             }
         };
@@ -305,12 +127,16 @@
             }
 
             allZones.forEach(zone => {
+                const isDefault = INITIAL_DEFAULT_ZONES.includes(zone);
                 const li = document.createElement('li');
                 li.className = 'flex justify-between items-center p-3 rounded-lg bg-gray-50 border border-gray-200';
                 
                 li.innerHTML = `
                     <span class="text-gray-800">${zone}</span>
                     <div>
+                        ${isDefault ? 
+                            '<span class="text-xs text-gray-500 mr-2">Predeterminado</span>' : ''
+                        }
                         <button onclick="deleteCustomZone('${zone.replace(/'/g, "\\'")}')" class="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition duration-150" title="Eliminar Zona">
                             <svg class="icon w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
                         </button>
@@ -324,9 +150,9 @@
             const selectEl = document.getElementById('product-zone');
             selectEl.innerHTML = '';
             
-            // Añadir 'Otros' si no hay zonas o para mover productos sin zona
+            // Si la lista de zonas está vacía (muy improbable con la carga inicial), al menos ponemos "Otros"
             if (allZones.length === 0) {
-                 allZones = [...DEFAULT_ZONES]; // Inicializa con las por defecto si está vacío
+                 allZones = ['Otros']; 
             }
             
             allZones.forEach(zone => {
@@ -336,7 +162,7 @@
                 selectEl.appendChild(option);
             });
              
-            // Añadir 'Otros' siempre al final por si hay productos sin zona asignada
+            // Asegurarse de que "Otros" está presente si no fue añadido previamente.
             if (!allZones.includes('Otros')) {
                 const optionOther = document.createElement('option');
                 optionOther.value = 'Otros';
@@ -347,82 +173,24 @@
         
         // --- LÓGICA DE PRODUCTOS (ITEMS) (ADAPTADA A LOCAL STORAGE) ---
 
+        /** Genera un ID único (reemplaza el ID de Firestore) */
+        function generateId() {
+            // Genera un ID único simple basado en el tiempo y un número aleatorio
+            return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        }
+
         /** Renderiza la lista completa de productos agrupados por zona (Pestaña Despensa) */
         function renderItems(items) {
             pantryListEl.innerHTML = '';
-            shoppingListEl.innerHTML = '';
+            // No limpiar shoppingListEl aquí, se hace en renderShoppingList()
 
             if (items.length === 0) {
                 pantryListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Tu despensa está vacía! Añade algunos productos arriba.</p>';
-                shoppingListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Tu lista de la compra está vacía! Marca productos como necesarios.</p>';
+                renderShoppingList(); // Asegurar que también se limpia la lista de la compra
                 return;
             }
 
             // 1. Renderizar Pestaña Despensa (Inventario Completo)
             const groups = items.reduce((acc, item) => {
-                const zone = item.zone && allZones.includes(item.zone) ? item.zone : 'Otros';
-                if (!acc[zone]) acc[zone] = [];
-                acc[zone].push(item);
-                return acc;
-            }, {});
-
-            const sortedZones = Object.keys(groups).sort((a, b) => {
-                if (a === 'Otros') return 1;
-                if (b === 'Otros') return -1;
-                return a.localeCompare(b);
-            });
-
-            sortedZones.forEach(zone => {
-                const zoneEl = document.createElement('div');
-                zoneEl.className = 'mb-6 p-4 border border-gray-100 rounded-lg shadow-sm';
-
-                const neededCount = groups[zone].filter(item => item.needed).length;
-                const zoneHeaderClass = neededCount > 0 ? 'text-danger font-bold' : 'text-gray-700';
-
-                zoneEl.innerHTML = `
-                    <h3 class="text-xl ${zoneHeaderClass} border-b pb-2 mb-3 flex justify-between items-center">
-                        ${zone}
-                        <span class="text-sm font-normal text-gray-500">(${neededCount} necesarios)</span>
-                    </h3>
-                    <ul class="space-y-2"></ul>
-                `;
-                const ul = zoneEl.querySelector('ul');
-
-                groups[zone].sort((a, b) => {
-                    if (a.needed !== b.needed) return a.needed ? -1 : 1; 
-                    return a.name.localeCompare(b.name); 
-                });
-
-                groups[zone].forEach(item => {
-                    const li = document.createElement('li');
-                    const itemClass = item.needed ? 'needed-item' : 'stocked-item';
-                    const itemInitial = item.name.charAt(0).toUpperCase();
-                    
-                    li.className = `p-3 rounded-lg flex flex-col md:flex-row justify-between items-center transition duration-150 ease-in-out hover:shadow-md ${itemClass}`;
-                    li.id = `item-${item.id}`; 
-                    
-                    const neededIcon = `<svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 12v-3a3 3 0 0 1 3 -3h13a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-13a3 3 0 0 1 -3 -3v-3" /><path d="M8 11.5l2 2l4 -4" /></svg>`;
-                    const stockedIcon = `<svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>`;
-
-                    // Renderizar opciones de zonas para el modo edición
-                    const zoneOptions = allZones.map(z => 
-                        `<option value="${z}" ${item.zone === z ? 'selected' : ''}>${z}</option>`
-                    ).join('');
-
-
-                    // Estructura del contenido (Modo Lectura)
-                    const displayMode = `
-                        <div id="display-mode-${item.id}" class="flex items-center w-full md:w-auto mb-2 md:mb-0 justify-between md:justify-start">
-                            <div class="w-10 h-10 ${item.needed ? 'bg-danger/20 text-danger' : 'bg-secondary/20 text-secondary'} font-bold rounded-full flex items-center justify-center text-lg mr-4 flex-shrink-0">
-                                ${itemInitial}
-                            </div>
-                            <span class="text-lg flex-1">${item.name} <span class="text-sm text-gray-400">(${item.zone})</span></span>
-                        </div>
-                    `;
-
-                    // Estructura del contenido (Modo Edición - oculta inicialmente)
-                    const editMode = `
-                        <div id="edit-mode-${item.id}" class="hidden w-full space-y-2 md:space-y-0 md:flex md:space-x-2 flex-col md:flex-row items-center">
-                            <input type="text" id="edit-name-${item.id}" value="${item.name.replace(/"/g, '&quot;')}" 
-                                class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-2/3 focus:ring-primary focus:border-primary">
-                            <select id="edit-zone-${item.id}" class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-1
+                // Usar 'Otros' si la zona no existe en la lista actual de zonas
+                const zone = item.zone && allZones.includes(item.zone) ? item.zone :
