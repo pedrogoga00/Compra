@@ -220,10 +220,21 @@
         // Establecer nivel de log para depuración de Firestore
         setLogLevel('debug');
 
-        // Variables globales proporcionadas por el entorno de Canvas
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // --- CONFIGURACIÓN FIREBASE (¡PEGA AQUÍ TUS VALORES REALES!) ---
+const firebaseConfig = {
+    apiKey: "AIzaSyAyqESBDoZ5CMkbwDO6vuMFPyO10yOjgiM",
+    authDomain: "midespensaapp-eda71.firebaseapp.com",
+    projectId: "midespensaapp-eda71",
+    storageBucket: "midespensaapp-eda71.firebasestorage.app",
+    messagingSenderId: "311849933459",
+    appId: "1:311849933459:web:81c37871bb9e1c5a12cb66",
+    measurementId: "G-P92Q4GES1P"
+  };
+
+// Se necesitan estas dos variables para el código que sigue
+const appId = firebaseConfig.appId; 
+const initialAuthToken = null;
+// --- FIN CONFIGURACIÓN FIREBASE ---
         
         // Zonas predeterminadas: ¡VACÍO para que el usuario defina TODAS sus zonas!
         const DEFAULT_ZONES = []; 
