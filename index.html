@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Despensa Inteligente</title>
-    <!-- Carga de Tailwind CSS para un diseño moderno y responsive -->
+    <title>Mi Despensa Inteligente (Offline)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -59,14 +58,13 @@
 
     <div id="app" class="max-w-4xl mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-primary mb-2">Mi Despensa y Lista</h1>
-            <p class="text-gray-600">Gestor en tiempo real de productos por zona.</p>
+            <h1 class="text-4xl font-extrabold text-primary mb-2">Mi Despensa y Lista (OFFLINE)</h1>
+            <p class="text-gray-600">Gestor local de productos por zona (guardado en tu navegador).</p>
             <div class="mt-2 p-2 bg-gray-100 rounded-lg text-xs text-gray-500">
-                Tu ID de Sesión (Importante para tu privacidad): <span id="user-id-display" class="font-mono text-gray-800 break-all">Cargando...</span>
+                Tu ID de Sesión: <span id="user-id-display" class="font-mono text-gray-800 break-all">LOCAL_STORAGE</span>
             </div>
         </header>
 
-        <!-- Navegación de Pestañas -->
         <nav class="mb-8 flex space-x-2 p-1 bg-white rounded-xl shadow-md overflow-x-auto">
             <button id="tab-pantry-btn" onclick="changeTab('pantry')" 
                     class="tab-button active flex-1 py-3 px-4 rounded-lg font-semibold text-gray-700 transition duration-200 border-2 border-transparent hover:bg-gray-100 md:text-base text-sm">
@@ -82,13 +80,10 @@
             </button>
         </nav>
 
-        <!-- CONTENEDOR DE PESTAÑAS -->
         <main class="tab-container">
 
-            <!-- PESTAÑA 1: DESPENSA (Inventario Completo) -->
             <div id="pantry-tab" class="tab-content">
                 
-                <!-- Formulario para Añadir Productos -->
                 <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
                         <svg class="icon mr-2 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
@@ -97,11 +92,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <input type="text" id="product-name" placeholder="Ej: Leche, Pasta, Huevos..."
                             class="p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary col-span-1 md:col-span-1" required>
-                        <!-- SELECT DINÁMICO DE ZONAS -->
                         <select id="product-zone"
                                 class="p-3 border border-gray-300 rounded-lg bg-white focus:ring-primary focus:border-primary col-span-1 md:col-span-1 add-zone-select">
-                            <!-- Options will be populated by JS -->
-                        </select>
+                            </select>
                         <button onclick="addItem()" id="add-button"
                                 class="bg-secondary text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 transition duration-200 shadow-md">
                             Añadir a la Despensa
@@ -109,7 +102,6 @@
                     </div>
                 </section>
 
-                <!-- Botones de Gestión y Archivo Semanal -->
                 <section class="mb-8 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                     <button onclick="archiveAndReset()" id="archive-button"
                             class="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg flex items-center justify-center">
@@ -123,19 +115,16 @@
                     </button>
                 </section>
 
-                <!-- Listas de Productos de la Despensa -->
                 <section class="bg-white p-6 rounded-xl shadow-lg">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
                         <svg class="icon mr-2 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20L18 12L10 4"/></svg>
                         Inventario por Zonas (Editar/Eliminar)
                     </h2>
                     <div id="pantry-list">
-                        <!-- Los productos se cargarán aquí, agrupados por zona -->
-                    </div>
+                        </div>
                 </section>
             </div>
 
-            <!-- PESTAÑA 2: LISTA DE LA COMPRA -->
             <div id="shopping-tab" class="tab-content hidden">
                 <section class="bg-white p-6 rounded-xl shadow-lg">
                     <h2 class="text-2xl font-bold text-danger mb-4 flex items-center">
@@ -144,12 +133,10 @@
                     </h2>
                     <p class="text-gray-600 mb-4">Haz clic para marcar como comprado (pasa a Despensa).</p>
                     <div id="shopping-list">
-                        <!-- Solo los productos 'needed: true' se cargarán aquí -->
-                    </div>
+                        </div>
                 </section>
             </div>
 
-            <!-- PESTAÑA 3: HISTORIAL SEMANAL -->
             <div id="history-tab" class="tab-content hidden">
                 <section class="bg-white p-6 rounded-xl shadow-lg">
                     <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
@@ -157,7 +144,6 @@
                         Registro de Archivos Semanales
                     </h2>
                     <div id="history-list">
-                        <!-- El historial se cargará aquí -->
                         <p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">Cargando historial...</p>
                     </div>
                 </section>
@@ -165,24 +151,20 @@
             
         </main>
 
-        <!-- Mensaje de confirmación/error (Custom Modal) -->
         <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="closeModal()">
             <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full" onclick="event.stopPropagation()">
                 <h3 id="modal-title" class="text-xl font-bold mb-3 text-primary"></h3>
                 <p id="modal-body" class="text-gray-700 mb-4"></p>
-                <!-- Este botón será reemplazado por los botones de confirmación si es necesario -->
                 <button onclick="closeModal()" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full">
                     Cerrar
                 </button>
             </div>
         </div>
 
-        <!-- Modal de Gestión de Zonas -->
         <div id="zone-management-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="closeZoneManagementModal()">
             <div class="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full" onclick="event.stopPropagation()">
                 <h3 class="text-2xl font-bold mb-4 text-primary">Gestión de Zonas Personalizadas</h3>
                 
-                <!-- Añadir Nueva Zona -->
                 <div class="mb-6 border-b pb-4">
                     <h4 class="text-lg font-semibold mb-2 text-gray-700">Añadir Nueva Zona</h4>
                     <div class="flex space-x-2">
@@ -195,12 +177,10 @@
                     </div>
                 </div>
 
-                <!-- Lista de Zonas -->
                 <div class="max-h-60 overflow-y-auto">
                     <h4 class="text-lg font-semibold mb-2 text-gray-700">Zonas Actuales</h4>
                     <ul id="zones-list" class="space-y-2">
-                        <!-- Zonas se cargarán aquí -->
-                    </ul>
+                        </ul>
                 </div>
                 
                 <button onclick="closeZoneManagementModal()" class="mt-6 bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full">
@@ -210,40 +190,16 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, getDoc, setDoc, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Establecer nivel de log para depuración de Firestore
-        setLogLevel('debug');
-
-        // --- CONFIGURACIÓN FIREBASE (¡PEGA AQUÍ TUS VALORES REALES!) ---
-const firebaseConfig = {
-    apiKey: "AIzaSyAyqESBDoZ5CMkbwDO6vuMFPyO10yOjgiM",
-    authDomain: "midespensaapp-eda71.firebaseapp.com",
-    projectId: "midespensaapp-eda71",
-    storageBucket: "midespensaapp-eda71.firebasestorage.app",
-    messagingSenderId: "311849933459",
-    appId: "1:311849933459:web:81c37871bb9e1c5a12cb66",
-    measurementId: "G-P92Q4GES1P"
-  };
-
-// Se necesitan estas dos variables para el código que sigue
-const appId = firebaseConfig.appId; 
-const initialAuthToken = null;
-// --- FIN CONFIGURACIÓN FIREBASE ---
+    <script>
+        // --- VARIABLES GLOBALES Y UTILIDADES ---
+        const PANTRY_KEY = 'miDespensa_items';
+        const ZONES_KEY = 'miDespensa_zones';
+        const HISTORY_KEY = 'miDespensa_history';
+        const DEFAULT_ZONES = ['Cocina', 'Baño', 'Despensa']; // Zonas por defecto para empezar
         
-        // Zonas predeterminadas: ¡VACÍO para que el usuario defina TODAS sus zonas!
-        const DEFAULT_ZONES = []; 
-
-        let db;
-        let auth;
-        let currentUserId = null;
-        let isAuthReady = false;
-        let allZones = [...DEFAULT_ZONES]; // Almacena todas las zonas (default + custom)
+        let allItems = [];
+        let allZones = [];
+        let history = [];
 
         // Referencias a elementos del DOM
         const pantryListEl = document.getElementById('pantry-list');
@@ -255,189 +211,122 @@ const initialAuthToken = null;
         const modalBodyEl = document.getElementById('modal-body');
         const archiveButton = document.getElementById('archive-button');
         const zonesListEl = document.getElementById('zones-list');
-
-
-        /**
-         * Muestra el modal personalizado.
-         * @param {string} title - Título del modal.
-         * @param {string} body - Cuerpo del mensaje.
-         * @param {string} type - Tipo de mensaje (success, error, info).
-         */
-        function showModal(title, body, type = 'info') {
-            modalTitleEl.textContent = title;
-            modalBodyEl.textContent = body;
-            
-            // Establecer color del título basado en el tipo
-            modalTitleEl.className = 'text-xl font-bold mb-3 ' + (type === 'error' ? 'text-danger' : (type === 'success' ? 'text-secondary' : 'text-primary'));
-            
-            // Asegurarse de que el botón de cerrar genérico esté presente
-            let closeBtn = modalEl.querySelector('.bg-white button');
-            if (closeBtn && closeBtn.id === 'confirm-delete-btn') {
-                 // Si hay botones de confirmación de la eliminación, los eliminamos y ponemos el genérico de cerrar
-                modalEl.querySelector('.bg-white div.flex')?.remove(); 
-                closeBtn = document.createElement('button');
-                closeBtn.onclick = window.closeModal;
-                closeBtn.className = 'bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full';
-                closeBtn.textContent = 'Cerrar';
-                modalEl.querySelector('.bg-white').appendChild(closeBtn);
-            } else if (!closeBtn) {
-                 // Si no hay botón (raro), crearlo
-                 closeBtn = document.createElement('button');
-                 closeBtn.onclick = window.closeModal;
-                 closeBtn.className = 'bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full';
-                 closeBtn.textContent = 'Cerrar';
-                 modalEl.querySelector('.bg-white').appendChild(closeBtn);
-            }
-
-            modalEl.classList.remove('hidden');
-            modalEl.classList.add('flex');
-        }
-
-        /** Cierra el modal personalizado. */
-        window.closeModal = function() {
-            modalEl.classList.add('hidden');
-            modalEl.classList.remove('flex');
-            // Re-renderizar los elementos para limpiar cualquier estado de edición si se usó el modal
-            loadItems(); 
-        }
-
-        /** Cierra el modal de gestión de zonas. */
-        window.closeZoneManagementModal = function() {
-            document.getElementById('zone-management-modal').classList.add('hidden');
-            document.getElementById('zone-management-modal').classList.remove('flex');
-        }
-
-        /** Muestra el modal de gestión de zonas. */
-        window.showZoneManagementModal = function() {
-            document.getElementById('zone-management-modal').classList.remove('hidden');
-            document.getElementById('zone-management-modal').classList.add('flex');
-        }
         
-        /** Control de cambio de pestañas. */
-        window.changeTab = function(tabName) {
-            const tabs = ['pantry', 'shopping', 'history'];
-            tabs.forEach(tab => {
-                document.getElementById(`${tab}-tab`).classList.add('hidden');
-                document.getElementById(`tab-${tab}-btn`).classList.remove('active');
-            });
+        // --- LÓGICA DE LOCAL STORAGE (Base de Datos Local) ---
 
-            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
-            document.getElementById(`tab-${tabName}-btn`).classList.add('active');
-        }
-
-
-        /**
-         * Inicializa Firebase y maneja la autenticación.
-         */
-        async function initFirebase() {
+        /** Carga los items, zonas e historial desde localStorage */
+        function loadAllFromLocalStorage() {
             try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Esperar a que el estado de autenticación se inicialice
-                await new Promise((resolve) => {
-                    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                        if (user) {
-                            currentUserId = user.uid;
-                        } else {
-                            if (initialAuthToken) {
-                                await signInWithCustomToken(auth, initialAuthToken);
-                                currentUserId = auth.currentUser.uid;
-                            } else {
-                                await signInAnonymously(auth);
-                                currentUserId = auth.currentUser.uid;
-                            }
-                        }
-                        userIdDisplayEl.textContent = currentUserId;
-                        isAuthReady = true;
-                        resolve();
-                        unsubscribe(); 
-                        
-                        // Cargar zonas, que a su vez llama a loadItems
-                        loadZones();
-                        loadHistory();
-                    });
-                });
+                allItems = JSON.parse(localStorage.getItem(PANTRY_KEY) || '[]');
+                allZones = JSON.parse(localStorage.getItem(ZONES_KEY) || '[]').sort();
+                history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
                 
-            } catch (error) {
-                console.error("Error al inicializar Firebase o autenticar:", error);
-                showModal("Error Crítico", `No se pudo conectar a la base de datos. Por favor, revisa la consola para más detalles.`, 'error');
+                // Si no hay zonas, inicializa con las por defecto
+                if (allZones.length === 0) {
+                    allZones = [...DEFAULT_ZONES];
+                    saveZones();
+                }
+
+                // Renderiza la interfaz inicial
+                renderAddZoneSelect();
+                renderItems(allItems);
+                renderShoppingList();
+                renderHistory();
+
+            } catch (e) {
+                console.error("Error al cargar datos de localStorage:", e);
+                showModal("Error Crítico", "No se pudieron cargar los datos guardados en tu navegador.", 'error');
             }
         }
 
-        /**
-         * Referencia a la colección de ítems.
-         */
-        function getPantryCollectionRef() {
-            if (!db || !currentUserId) throw new Error("Firebase no inicializado.");
-            return collection(db, `artifacts/${appId}/users/${currentUserId}/pantry_items`);
+        /** Guarda los items en localStorage */
+        function saveItems() {
+            localStorage.setItem(PANTRY_KEY, JSON.stringify(allItems));
+            renderItems(allItems);
+            renderShoppingList();
         }
 
-        /**
-         * Referencia al documento de zonas.
-         */
-        function getZonesDocRef() {
-            if (!db || !currentUserId) throw new Error("Firebase no inicializado.");
-            // Documento único para guardar la configuración de zonas: /artifacts/{appId}/users/{userId}/settings/userZones
-            return doc(db, `artifacts/${appId}/users/${currentUserId}/settings/userZones`);
+        /** Guarda las zonas en localStorage */
+        function saveZones() {
+            localStorage.setItem(ZONES_KEY, JSON.stringify(allZones));
+            renderAddZoneSelect();
+            renderZoneManagementModal();
         }
 
-        /**
-         * Referencia a la colección de historial.
-         */
-        function getHistoryCollectionRef() {
-            if (!db || !currentUserId) throw new Error("Firebase no inicializado.");
-            return collection(db, `artifacts/${appId}/users/${currentUserId}/pantry_history`);
+        /** Guarda el historial en localStorage */
+        function saveHistory() {
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
         }
 
+        // --- LÓGICA DE GESTIÓN DE ZONAS (REEMPLAZANDO FIREBASE) ---
 
-        // --- LÓGICA DE GESTIÓN DE ZONAS ---
+        window.addCustomZone = function() {
+            const newZoneName = document.getElementById('new-zone-input').value.trim();
+            if (!newZoneName) return;
 
-        /**
-         * Renderiza el listado de zonas en el modal de gestión.
-         */
+            if (allZones.map(z => z.toLowerCase()).includes(newZoneName.toLowerCase())) {
+                showModal("Error", `La zona "${newZoneName}" ya existe.`, 'error');
+                return;
+            }
+
+            allZones.push(newZoneName);
+            allZones.sort(); // Reordenar
+            saveZones();
+            document.getElementById('new-zone-input').value = '';
+            showModal("Éxito", `Zona "${newZoneName}" añadida.`, 'success');
+        };
+
+        window.deleteCustomZone = function(zoneToDelete) {
+            const initialLength = allZones.length;
+            allZones = allZones.filter(z => z !== zoneToDelete);
+            
+            if (allZones.length < initialLength) {
+                // Mover productos de la zona eliminada a 'Otros'
+                allItems.forEach(item => {
+                    if (item.zone === zoneToDelete) {
+                        item.zone = 'Otros'; 
+                    }
+                });
+                saveItems();
+                saveZones();
+                showModal("Éxito", `Zona "${zoneToDelete}" eliminada. Los productos se movieron a "Otros".`, 'success');
+            } else {
+                showModal("Error", "No se pudo eliminar la zona.", 'error');
+            }
+        };
+
         function renderZoneManagementModal() {
             zonesListEl.innerHTML = '';
 
             if (allZones.length === 0) {
-                 zonesListEl.innerHTML = '<p class="text-center text-gray-500 p-4">¡No hay zonas! Añade tu primera zona arriba.</p>';
-                 return;
+                zonesListEl.innerHTML = '<p class="text-center text-gray-500 p-4">¡No hay zonas! Añade tu primera zona arriba.</p>';
+                return;
             }
 
             allZones.forEach(zone => {
-                const isDefault = DEFAULT_ZONES.includes(zone);
                 const li = document.createElement('li');
                 li.className = 'flex justify-between items-center p-3 rounded-lg bg-gray-50 border border-gray-200';
                 
                 li.innerHTML = `
                     <span class="text-gray-800">${zone}</span>
                     <div>
-                        ${isDefault ? 
-                            '<span class="text-xs text-gray-500 mr-2">Predeterminado</span>' : 
-                            `<button onclick="deleteCustomZone('${zone.replace(/'/g, "\\'")}')" class="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition duration-150" title="Eliminar Zona">
-                                <svg class="icon w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
-                            </button>`
-                        }
+                        <button onclick="deleteCustomZone('${zone.replace(/'/g, "\\'")}')" class="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition duration-150" title="Eliminar Zona">
+                            <svg class="icon w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
+                        </button>
                     </div>
                 `;
                 zonesListEl.appendChild(li);
             });
         }
 
-        /**
-         * Renderiza las opciones del <select> en el formulario de añadir producto.
-         */
         function renderAddZoneSelect() {
             const selectEl = document.getElementById('product-zone');
             selectEl.innerHTML = '';
-
+            
+            // Añadir 'Otros' si no hay zonas o para mover productos sin zona
             if (allZones.length === 0) {
-                const option = document.createElement('option');
-                option.value = 'Otros';
-                option.textContent = 'Otros (Añadir Zonas)';
-                selectEl.appendChild(option);
-                return;
+                 allZones = [...DEFAULT_ZONES]; // Inicializa con las por defecto si está vacío
             }
             
             allZones.forEach(zone => {
@@ -446,117 +335,38 @@ const initialAuthToken = null;
                 option.textContent = zone;
                 selectEl.appendChild(option);
             });
-        }
-
-        /**
-         * Carga las zonas de Firestore y las combina con las predeterminadas.
-         */
-        function loadZones() {
-            if (!isAuthReady) return;
-            const zonesRef = getZonesDocRef();
-
-            onSnapshot(zonesRef, (docSnapshot) => {
-                const customZonesData = docSnapshot.exists() ? docSnapshot.data().custom : [];
-                
-                // Asegurarse de que no haya duplicados entre default y custom
-                const uniqueCustomZones = customZonesData.filter(zone => !DEFAULT_ZONES.includes(zone));
-                
-                // Combinar y ordenar todas las zonas
-                allZones = [...DEFAULT_ZONES, ...uniqueCustomZones].sort();
-                
-                // Actualizar todas las interfaces que usan zonas
-                renderAddZoneSelect();
-                renderZoneManagementModal();
-                
-                // Llama a loadItems para que use la nueva lista de zonas al renderizar
-                loadItems();
-            }, (error) => {
-                console.error("Error cargando zonas:", error);
-            });
-        }
-
-        /**
-         * Añade una zona personalizada.
-         */
-        window.addCustomZone = async function() {
-            const newZoneName = document.getElementById('new-zone-input').value.trim();
-            if (!newZoneName) return;
-
-            // Validación de existencia e ignorar mayúsculas/minúsculas
-            if (allZones.map(z => z.toLowerCase()).includes(newZoneName.toLowerCase())) {
-                showModal("Error", `La zona "${newZoneName}" ya existe.`, 'error');
-                return;
-            }
-
-            try {
-                const zonesRef = getZonesDocRef();
-                const docSnapshot = await getDoc(zonesRef);
-                const currentCustomZones = docSnapshot.exists() ? docSnapshot.data().custom : [];
-                
-                // Usamos el nombre original con mayúsculas/minúsculas
-                const updatedZones = [...currentCustomZones, newZoneName]; 
-                await setDoc(zonesRef, { custom: updatedZones }, { merge: true });
-
-                document.getElementById('new-zone-input').value = '';
-                showModal("Éxito", `Zona "${newZoneName}" añadida.`, 'success');
-
-            } catch (error) {
-                console.error("Error añadiendo zona:", error);
-                showModal("Error", "No se pudo añadir la zona.", 'error');
+             
+            // Añadir 'Otros' siempre al final por si hay productos sin zona asignada
+            if (!allZones.includes('Otros')) {
+                const optionOther = document.createElement('option');
+                optionOther.value = 'Otros';
+                optionOther.textContent = 'Otros';
+                selectEl.appendChild(optionOther);
             }
         }
+        
+        // --- LÓGICA DE PRODUCTOS (ITEMS) (ADAPTADA A LOCAL STORAGE) ---
 
-        /**
-         * Elimina una zona personalizada.
-         */
-        window.deleteCustomZone = async function(zoneToDelete) {
-            if (DEFAULT_ZONES.includes(zoneToDelete)) {
-                showModal("Error", "No puedes eliminar las zonas predeterminadas.", 'error');
-                return;
-            }
-
-            try {
-                const zonesRef = getZonesDocRef();
-                const docSnapshot = await getDoc(zonesRef);
-                const currentCustomZones = docSnapshot.exists() ? docSnapshot.data().custom : [];
-                
-                const updatedZones = currentCustomZones.filter(z => z !== zoneToDelete);
-                await setDoc(zonesRef, { custom: updatedZones }, { merge: true });
-                
-                showModal("Éxito", `Zona "${zoneToDelete}" eliminada.`, 'success');
-
-            } catch (error) {
-                console.error("Error eliminando zona:", error);
-                showModal("Error", "No se pudo eliminar la zona.", 'error');
-            }
-        }
-
-        // --- LÓGICA DE PRODUCTOS (ITEMS) ---
-
-        /**
-         * Renderiza la lista completa de productos agrupados por zona (Pestaña Despensa).
-         */
+        /** Renderiza la lista completa de productos agrupados por zona (Pestaña Despensa) */
         function renderItems(items) {
             pantryListEl.innerHTML = '';
-            
+            shoppingListEl.innerHTML = '';
+
             if (items.length === 0) {
                 pantryListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Tu despensa está vacía! Añade algunos productos arriba.</p>';
+                shoppingListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Tu lista de la compra está vacía! Marca productos como necesarios.</p>';
                 return;
             }
 
-            // Agrupar productos por zona
+            // 1. Renderizar Pestaña Despensa (Inventario Completo)
             const groups = items.reduce((acc, item) => {
-                // Usar 'Otros' si la zona está vacía o si la zona no existe en la lista actual de zonas (para datos antiguos)
                 const zone = item.zone && allZones.includes(item.zone) ? item.zone : 'Otros';
-                if (!acc[zone]) {
-                    acc[zone] = [];
-                }
+                if (!acc[zone]) acc[zone] = [];
                 acc[zone].push(item);
                 return acc;
             }, {});
 
             const sortedZones = Object.keys(groups).sort((a, b) => {
-                // Si 'Otros' existe, lo ponemos al final
                 if (a === 'Otros') return 1;
                 if (b === 'Otros') return -1;
                 return a.localeCompare(b);
@@ -595,17 +405,14 @@ const initialAuthToken = null;
                     const stockedIcon = `<svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>`;
 
                     // Renderizar opciones de zonas para el modo edición
-                    const zoneOptions = allZones.length > 0
-                        ? allZones.map(z => 
-                            `<option value="${z}" ${item.zone === z ? 'selected' : ''}>${z}</option>`
-                        ).join('')
-                        : `<option value="Otros" selected>Otros (Sin Zonas)</option>`;
+                    const zoneOptions = allZones.map(z => 
+                        `<option value="${z}" ${item.zone === z ? 'selected' : ''}>${z}</option>`
+                    ).join('');
 
 
                     // Estructura del contenido (Modo Lectura)
                     const displayMode = `
                         <div id="display-mode-${item.id}" class="flex items-center w-full md:w-auto mb-2 md:mb-0 justify-between md:justify-start">
-                            <!-- Inicial/Imagen del producto -->
                             <div class="w-10 h-10 ${item.needed ? 'bg-danger/20 text-danger' : 'bg-secondary/20 text-secondary'} font-bold rounded-full flex items-center justify-center text-lg mr-4 flex-shrink-0">
                                 ${itemInitial}
                             </div>
@@ -618,463 +425,4 @@ const initialAuthToken = null;
                         <div id="edit-mode-${item.id}" class="hidden w-full space-y-2 md:space-y-0 md:flex md:space-x-2 flex-col md:flex-row items-center">
                             <input type="text" id="edit-name-${item.id}" value="${item.name.replace(/"/g, '&quot;')}" 
                                 class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-2/3 focus:ring-primary focus:border-primary">
-                            <select id="edit-zone-${item.id}" class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-1/3 bg-white focus:ring-primary focus:border-primary">
-                                ${zoneOptions}
-                            </select>
-                        </div>
-                    `;
-
-                    // Botones de acción (Modo Lectura)
-                    const actionButtons = `
-                        <div id="action-buttons-${item.id}" class="flex space-x-2 flex-shrink-0 mt-2 md:mt-0">
-                            <!-- Toggle Button -->
-                            <button onclick="event.stopPropagation(); window.toggleNeeded('${item.id}', ${item.needed})" 
-                                class="p-2 rounded-full ${item.needed ? 'bg-danger/20 text-danger' : 'bg-secondary/20 text-secondary opacity-80'} hover:opacity-100 transition duration-150" title="${item.needed ? 'Marcar como Almacenado' : 'Marcar como Necesario'}">
-                                ${item.needed ? neededIcon : stockedIcon}
-                            </button>
-
-                            <!-- Edit Button -->
-                            <button onclick="event.stopPropagation(); window.showEditControls('${item.id}')" 
-                                class="p-2 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition duration-150" title="Editar Producto">
-                                <svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1m-7 3h-1m4 -14l4 4l-4 4l-6 2l2 -6z"/></svg>
-                            </button>
-
-                            <!-- Delete Button -->
-                            <button onclick="event.stopPropagation(); window.confirmDelete('${item.id}', '${item.name.replace(/'/g, "\\'")}')" 
-                                class="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition duration-150" title="Eliminar Producto">
-                                <svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
-                            </button>
-                        </div>
-                    `;
-
-                    // Botones de Edición (Modo Edición - oculta inicialmente)
-                    const editButtons = `
-                        <div id="edit-buttons-${item.id}" class="hidden flex space-x-2 flex-shrink-0 mt-2 md:mt-0">
-                            <!-- Save Button -->
-                            <button onclick="event.stopPropagation(); window.saveEdit('${item.id}')" 
-                                class="p-2 rounded-full bg-secondary text-white hover:bg-emerald-600 transition duration-150" title="Guardar Cambios">
-                                <svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2m10 0v4h-4v-4"/></svg>
-                            </button>
-
-                            <!-- Cancel Button -->
-                            <button onclick="event.stopPropagation(); window.cancelEdit('${item.id}')" 
-                                class="p-2 rounded-full bg-gray-300 text-gray-700 hover:bg-gray-400 transition duration-150" title="Cancelar Edición">
-                                <svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 6l-12 12m0 -12l12 12"/></svg>
-                            </button>
-                        </div>
-                    `;
-
-                    li.innerHTML = `${displayMode}${editMode}${actionButtons}${editButtons}`;
-                    ul.appendChild(li);
-                });
-
-                pantryListEl.appendChild(zoneEl);
-            });
-        }
-        
-        /**
-         * Lógica para mostrar los controles de edición.
-         */
-        window.showEditControls = function(docId) {
-            document.getElementById(`display-mode-${docId}`)?.classList.add('hidden');
-            document.getElementById(`action-buttons-${docId}`)?.classList.add('hidden');
-            document.getElementById(`edit-mode-${docId}`)?.classList.remove('hidden');
-            document.getElementById(`edit-buttons-${docId}`)?.classList.remove('hidden');
-        }
-
-        /**
-         * Lógica para cancelar la edición.
-         */
-        window.cancelEdit = function(docId) {
-            document.getElementById(`display-mode-${docId}`)?.classList.remove('hidden');
-            document.getElementById(`action-buttons-${docId}`)?.classList.remove('hidden');
-            document.getElementById(`edit-mode-${docId}`)?.classList.add('hidden');
-            document.getElementById(`edit-buttons-${docId}`)?.classList.add('hidden');
-        }
-
-        /**
-         * Lógica para guardar los cambios del producto.
-         */
-        window.saveEdit = async function(docId) {
-            const newName = document.getElementById(`edit-name-${docId}`)?.value.trim();
-            const newZone = document.getElementById(`edit-zone-${docId}`)?.value;
-
-            if (!newName) {
-                showModal("Error de Edición", "El nombre del producto no puede estar vacío.", 'error');
-                return;
-            }
-
-            try {
-                const itemRef = doc(getPantryCollectionRef(), docId);
-                await updateDoc(itemRef, {
-                    name: newName,
-                    zone: newZone,
-                });
-                showModal("Éxito", `Producto "${newName}" actualizado.`, 'success');
-            } catch (error) {
-                console.error("Error al guardar edición:", error);
-                showModal("Error al Guardar", "No se pudieron guardar los cambios.", 'error');
-            }
-        }
-
-        /**
-         * Muestra modal de confirmación antes de eliminar.
-         */
-        window.confirmDelete = function(docId, productName) {
-            modalTitleEl.textContent = "Confirmar Eliminación";
-            modalTitleEl.className = 'text-xl font-bold mb-3 text-danger';
-            modalBodyEl.textContent = `¿Estás seguro de que quieres eliminar el producto "${productName}" de tu despensa? Esta acción es irreversible.`;
-            
-            // Elimina el botón de cerrar genérico si existe
-            modalEl.querySelector('.bg-white button')?.remove(); 
-
-            const currentContent = modalEl.querySelector('.bg-white');
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'flex space-x-3 mt-4';
-            buttonContainer.innerHTML = `
-                <button id="confirm-delete-btn" class="flex-1 bg-danger text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition duration-200">
-                    Sí, Eliminar
-                </button>
-                <button onclick="closeModal()" class="flex-1 bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 transition duration-200">
-                    Cancelar
-                </button>
-            `;
-            currentContent.appendChild(buttonContainer);
-            
-            // Añadir listener al botón de confirmar (solo una vez)
-            document.getElementById('confirm-delete-btn').onclick = async function() {
-                closeModal();
-                await window.deleteItem(docId, productName);
-            };
-
-            modalEl.classList.remove('hidden');
-            modalEl.classList.add('flex');
-        }
-
-        /**
-         * Elimina un producto de Firestore.
-         */
-        window.deleteItem = async function(docId, productName) {
-            try {
-                const itemRef = doc(getPantryCollectionRef(), docId);
-                await deleteDoc(itemRef);
-                showModal("Éxito", `"${productName}" eliminado correctamente.`, 'success');
-            } catch (error) {
-                console.error("Error al eliminar producto:", error);
-                showModal("Error al Eliminar", "No se pudo eliminar el producto.", 'error');
-            }
-        }
-        
-        /**
-         * Alterna el estado 'needed' (necesario/almacenado) de un producto.
-         */
-        window.toggleNeeded = async function(docId, currentStatus) {
-            try {
-                const itemRef = doc(getPantryCollectionRef(), docId);
-                await updateDoc(itemRef, {
-                    needed: !currentStatus
-                });
-            } catch (error) {
-                console.error("Error al alternar estado:", error);
-                showModal("Error de Actualización", "No se pudo cambiar el estado del producto. Inténtalo de nuevo.", 'error');
-            }
-        }
-
-        /**
-         * Añade un nuevo producto a Firestore.
-         */
-        window.addItem = async function() {
-            const nameInput = document.getElementById('product-name');
-            const zoneInput = document.getElementById('product-zone');
-            const addButton = document.getElementById('add-button');
-
-            const name = nameInput.value.trim();
-            const zone = zoneInput.value;
-
-            if (!name) {
-                showModal("Falta Nombre", "Por favor, introduce el nombre del producto.", 'info');
-                return;
-            }
-
-            if (allZones.length === 0 && zone === 'Otros') {
-                showModal("Zonas Faltantes", "Debes añadir al menos una zona en 'Gestionar Zonas' antes de añadir productos.", 'info');
-                return;
-            }
-
-            const originalText = addButton.textContent;
-            addButton.disabled = true;
-            addButton.textContent = 'Añadiendo...';
-
-            try {
-                const itemData = {
-                    name: name,
-                    zone: zone,
-                    needed: false, 
-                    userId: currentUserId,
-                    createdAt: new Date().toISOString()
-                };
-
-                await addDoc(getPantryCollectionRef(), itemData);
-                
-                nameInput.value = ''; 
-                showModal("Éxito", `"${name}" añadido a la zona "${zone}".`, 'success');
-
-            } catch (error) {
-                console.error("Error al añadir producto:", error);
-                showModal("Error al Añadir", `No se pudo añadir el producto.`, 'error');
-            } finally {
-                addButton.disabled = false;
-                addButton.textContent = originalText;
-            }
-        }
-
-
-        /**
-         * Escucha los cambios en la colección de Firestore en tiempo real.
-         */
-        function loadItems() {
-            if (!isAuthReady) return;
-
-            const itemsRef = getPantryCollectionRef();
-            
-            onSnapshot(itemsRef, (snapshot) => {
-                const items = [];
-                snapshot.forEach(doc => {
-                    items.push({ id: doc.id, ...doc.data() });
-                });
-                // Actualiza ambas pestañas con los datos más recientes
-                renderItems(items);
-                renderShoppingList(items);
-            }, (error) => {
-                console.error("Error al cargar los ítems en tiempo real:", error);
-            });
-        }
-        
-        /**
-         * Renderiza solo los productos marcados como necesarios (Pestaña Lista de la Compra).
-         */
-        function renderShoppingList(items) {
-            shoppingListEl.innerHTML = '';
-
-            const neededItems = items.filter(item => item.needed);
-
-            if (neededItems.length === 0) {
-                shoppingListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Lista vacía! Marca los productos en la Despensa para añadirlos aquí.</p>';
-                return;
-            }
-
-            const groups = neededItems.reduce((acc, item) => {
-                const zone = item.zone || 'Otros';
-                if (!acc[zone]) acc[zone] = [];
-                acc[zone].push(item);
-                return acc;
-            }, {});
-
-            const sortedZones = Object.keys(groups).sort((a, b) => {
-                if (a === 'Otros') return 1;
-                if (b === 'Otros') return -1;
-                return a.localeCompare(b);
-            });
-            
-            const ul = document.createElement('ul');
-            ul.className = 'space-y-3';
-
-            sortedZones.forEach(zone => {
-                const zoneHeader = document.createElement('h4');
-                zoneHeader.className = 'text-lg font-semibold text-gray-700 mt-4 mb-2 border-b border-gray-100 pb-1';
-                zoneHeader.textContent = zone;
-                ul.appendChild(zoneHeader);
-
-
-                groups[zone].sort((a, b) => a.name.localeCompare(b.name));
-
-                groups[zone].forEach(item => {
-                    const li = document.createElement('li');
-                    const itemInitial = item.name.charAt(0).toUpperCase();
-
-                    li.className = `p-4 rounded-lg flex justify-between items-center cursor-pointer transition duration-150 ease-in-out hover:bg-red-50 needed-item`;
-                    
-                    const checkIcon = `
-                        <svg class="icon w-6 h-6 text-danger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
-                    `;
-
-                    li.innerHTML = `
-                        <div class="flex items-center">
-                            <!-- Inicial/Imagen del producto -->
-                            <div class="w-8 h-8 bg-danger/20 text-danger font-bold rounded-full flex items-center justify-center text-md mr-3 flex-shrink-0">
-                                ${itemInitial}
-                            </div>
-                            <span class="text-xl">${item.name}</span>
-                        </div>
-                        <span class="flex items-center space-x-2 border-l pl-3 border-red-200">
-                            <span class="text-sm text-gray-500 hidden md:inline">Tocar para comprar</span>
-                            ${checkIcon}
-                        </span>
-                    `;
-
-                    li.onclick = () => window.toggleNeeded(item.id, true);
-                    ul.appendChild(li);
-                });
-            });
-            shoppingListEl.appendChild(ul);
-        }
-
-        // --- LÓGICA DE HISTORIAL ---
-
-        /**
-         * Helper para renderizar una sección del historial (Comprados o Pendientes).
-         */
-        function renderHistorySection(title, items, color) {
-            if (items.length === 0) return '';
-
-            const listItems = items.map(item => `
-                <li class="flex justify-between items-center text-sm p-2 rounded-md ${color === 'secondary' ? 'bg-green-50' : 'bg-red-50'}">
-                    <span class="flex-1">${item.name}</span>
-                    <span class="text-xs text-gray-500">${item.zone}</span>
-                </li>
-            `).join('');
-
-            return `
-                <div class="${items.length > 0 ? 'border border-gray-200 p-3 rounded-lg' : ''}">
-                    <h5 class="text-base font-bold text-${color} mb-2">${title} (${items.length})</h5>
-                    <ul class="space-y-1">
-                        ${listItems}
-                    </ul>
-                </div>
-            `;
-        }
-
-        /**
-         * Carga el historial de compras y lo renderiza.
-         */
-        function loadHistory() {
-            if (!isAuthReady) return;
-            historyListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">Cargando historial...</p>';
-
-            const historyQuery = query(getHistoryCollectionRef());
-
-            onSnapshot(historyQuery, (snapshot) => {
-                const history = [];
-                snapshot.forEach(doc => {
-                    history.push({ id: doc.id, ...doc.data() });
-                });
-                history.sort((a, b) => new Date(b.date) - new Date(a.date));
-                renderHistory(history);
-            }, (error) => {
-                console.error("Error al cargar el historial:", error);
-                historyListEl.innerHTML = '<p class="text-center text-danger">Error al cargar el historial.</p>';
-            });
-        }
-        
-        /**
-         * Renderiza el historial de archivos semanales (Pestaña Historial).
-         */
-        function renderHistory(history) {
-            historyListEl.innerHTML = '';
-            
-            if (history.length === 0) {
-                historyListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">Aún no hay archivos. Usa el botón "Archivar y Resetear Semana" para empezar el registro.</p>';
-                return;
-            }
-
-            const ul = document.createElement('ul');
-            ul.className = 'space-y-6';
-
-            history.forEach((week, index) => {
-                const li = document.createElement('li');
-                li.className = 'bg-white p-5 rounded-xl shadow-lg border border-gray-100';
-                
-                const pendingItems = week.items.filter(item => item.needed);
-                const boughtItems = week.items.filter(item => !item.needed); 
-
-                const pendingText = pendingItems.length === 0 
-                    ? '<span class="text-secondary font-bold">Lista completada con éxito 🎉</span>'
-                    : `<span class="text-danger font-bold">${pendingItems.length} productos quedaron pendientes.</span>`;
-
-                li.innerHTML = `
-                    <div class="flex justify-between items-start mb-3 border-b pb-2">
-                        <div>
-                            <span class="text-xl font-extrabold text-primary block">Semana ${history.length - index}</span>
-                            <span class="text-sm text-gray-500">${week.displayDate}</span>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-base">${pendingText}</p>
-                            <p class="text-xs text-gray-400">Inventario archivado: ${week.totalItems} productos.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        ${renderHistorySection('Productos Comprados/Stock', boughtItems, 'secondary')}
-                        ${renderHistorySection('Productos Pendientes de Comprar', pendingItems, 'danger')}
-                    </div>
-                `;
-                ul.appendChild(li);
-            });
-
-            historyListEl.appendChild(ul);
-        }
-
-        /**
-         * Archiva el inventario actual a la colección de historial y resetea todos los ítems a "Almacenado".
-         */
-        window.archiveAndReset = async function() {
-            archiveButton.disabled = true;
-            const originalHtml = archiveButton.innerHTML;
-            archiveButton.innerHTML = '<svg class="icon w-6 h-6 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a8 8 0 0 1 8 8a8 8 0 0 1 -8 8a8 8 0 0 1 -8 -8a8 8 0 0 1 8 -8"/></svg> Archivando y reseteando...';
-
-            try {
-                const itemsRef = getPantryCollectionRef();
-                const snapshot = await getDocs(itemsRef);
-                
-                if (snapshot.empty) {
-                    showModal("Información", "No hay productos en la despensa para archivar.", 'info');
-                    return;
-                }
-
-                const currentItems = [];
-                const batch = writeBatch(db); 
-                const now = new Date();
-                
-                snapshot.forEach(docSnapshot => {
-                    const data = docSnapshot.data();
-                    currentItems.push({ 
-                        name: data.name, 
-                        zone: data.zone, 
-                        needed: data.needed, 
-                        id: docSnapshot.id 
-                    });
-                    
-                    batch.update(docSnapshot.ref, { needed: false });
-                });
-
-                const historyData = {
-                    date: now.toISOString(),
-                    displayDate: now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                    items: currentItems, 
-                    totalItems: currentItems.length,
-                    pendingNeeded: currentItems.filter(item => item.needed).length,
-                };
-                
-                await addDoc(getHistoryCollectionRef(), historyData);
-
-                await batch.commit();
-
-                loadHistory(); 
-
-                showModal("¡Archivo Semanal Completo!", `Se han archivado ${currentItems.length} productos y se ha reseteado la lista de la compra.`, 'success');
-
-            } catch (error) {
-                console.error("Error al archivar y resetear:", error);
-                showModal("Error al Archivar", `No se pudo completar el proceso semanal.`, 'error');
-            } finally {
-                archiveButton.disabled = false;
-                archiveButton.innerHTML = originalHtml;
-            }
-        }
-
-
-        // Inicializar la aplicación
-        window.onload = initFirebase;
-    </script>
-</body>
-</html>
+                            <select id="edit-zone-${item.id}" class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-1
