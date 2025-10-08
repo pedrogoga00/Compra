@@ -1,10 +1,174 @@
-<script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Despensa Local</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para Tailwind */
+        :root {
+            --color-primary: #3b82f6; /* blue-500 */
+            --color-secondary: #10b981; /* emerald-500 */
+            --color-danger: #ef4444; /* red-500 */
+        }
+        .text-primary { color: var(--color-primary); }
+        .bg-primary { background-color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .text-danger { color: var(--color-danger); }
+        .bg-danger\/20 { background-color: rgba(239, 68, 68, 0.2); }
+        .hover\:bg-danger\/30:hover { background-color: rgba(239, 68, 68, 0.3); }
+        .hover\:bg-emerald-600:hover { background-color: #059669; }
+        .focus\:ring-primary:focus { --tw-ring-color: var(--color-primary); }
+        .focus\:border-primary:focus { border-color: var(--color-primary); }
+
+        /* Estilo para los ítems necesarios (lista de la compra) */
+        .needed-item {
+            border-left: 5px solid var(--color-danger);
+            background-color: #fef2f2; /* red-50 */
+        }
+        /* Estilo para los ítems en stock (inventario) */
+        .stocked-item {
+            border-left: 5px solid var(--color-secondary);
+            background-color: #f0fdf4; /* emerald-50 */
+        }
+
+        /* Estilo para el botón de pestaña activo */
+        .tab-button.active {
+            color: var(--color-primary);
+            border-bottom: 3px solid var(--color-primary);
+            font-weight: 600;
+        }
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Estilo general para iconos SVG */
+        .icon {
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Mi Despensa Local</h1>
+            <p class="text-gray-600">Gestor de inventario y lista de la compra (datos guardados en tu navegador).</p>
+        </header>
+
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Añadir Nuevo Producto</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label for="product-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto</label>
+                    <input type="text" id="product-name" placeholder="Ej: Leche, Pasta, Huevos..." class="p-3 border border-gray-300 rounded-lg w-full focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="product-zone" class="block text-sm font-medium text-gray-700 mb-1">Zona de Almacenamiento</label>
+                    <select id="product-zone" class="p-3 border border-gray-300 rounded-lg w-full bg-white focus:ring-primary focus:border-primary">
+                        </select>
+                </div>
+                <div>
+                    <button onclick="addItem()" class="bg-primary text-white font-semibold py-3 px-4 rounded-lg w-full hover:bg-blue-700 transition duration-200 shadow-md">
+                        Añadir
+                    </button>
+                </div>
+            </div>
+            <button onclick="showZoneManagementModal()" class="text-sm text-gray-500 mt-3 hover:text-primary transition duration-200">
+                Gestionar Zonas de Almacenamiento
+            </button>
+        </section>
+
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="tab-pantry-btn" onclick="changeTab('pantry')" class="tab-button active flex-1 p-3 text-gray-600 hover:text-primary text-center">
+                Despensa / Inventario
+            </button>
+            <button id="tab-shopping-btn" onclick="changeTab('shopping')" class="tab-button flex-1 p-3 text-gray-600 hover:text-primary text-center">
+                Lista de la Compra
+            </button>
+            <button id="tab-history-btn" onclick="changeTab('history')" class="tab-button flex-1 p-3 text-gray-600 hover:text-primary text-center">
+                Historial
+            </button>
+        </div>
+
+        <main>
+            <section id="pantry-tab">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Inventario Completo</h2>
+                    <button onclick="archiveAndReset()" id="archive-button" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-600 transition duration-200 text-sm shadow-md">
+                        Archivar Semana
+                    </button>
+                </div>
+                <div id="pantry-list" class="space-y-4">
+                    </div>
+            </section>
+
+            <section id="shopping-tab" class="hidden">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Productos Necesarios</h2>
+                <p class="text-gray-600 mb-6">Haz clic en un producto para marcarlo como "En Stock" una vez que lo compres.</p>
+                <div id="shopping-list" class="space-y-4">
+                    </div>
+            </section>
+            
+            <section id="history-tab" class="hidden">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Historial de Compras</h2>
+                <div id="history-list" class="space-y-4">
+                    </div>
+            </section>
+        </main>
+        
+        <footer class="text-center text-gray-500 mt-12 pt-6 border-t border-gray-200">
+            <p>Datos almacenados localmente en tu navegador. No se requiere conexión a internet ni cuenta de usuario.</p>
+        </footer>
+
+    </div>
+
+    <div id="message-modal" class="hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-50 items-center justify-center p-4" onclick="closeModal()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6" onclick="event.stopPropagation()">
+            <h3 id="modal-title" class="text-xl font-bold mb-3">Título</h3>
+            <p id="modal-body" class="text-gray-700 mb-6">Cuerpo del mensaje.</p>
+            <button onclick="closeModal()" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full">Cerrar</button>
+        </div>
+    </div>
+    
+    <div id="zone-management-modal" class="hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-50 items-center justify-center p-4" onclick="closeZoneManagementModal()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Administrar Zonas</h3>
+            
+            <div class="mb-6 space-y-3">
+                <label for="new-zone-input" class="block text-sm font-medium text-gray-700">Añadir Nueva Zona</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="new-zone-input" placeholder="Ej: Jardín, Sótano..." class="p-3 border border-gray-300 rounded-lg flex-grow focus:ring-primary focus:border-primary">
+                    <button onclick="addCustomZone()" class="bg-secondary text-white font-semibold py-3 px-4 rounded-lg hover:bg-emerald-600 transition duration-200">
+                        Añadir
+                    </button>
+                </div>
+            </div>
+            
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">Zonas Existentes:</h4>
+            <ul id="zones-list" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                </ul>
+            
+            <button onclick="closeZoneManagementModal()" class="mt-6 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-200 w-full">
+                Hecho
+            </button>
+        </div>
+    </div>
+
+
+    <script>
         // --- VARIABLES GLOBALES Y UTILIDADES ---
         const PANTRY_KEY = 'miDespensa_items';
         const ZONES_KEY = 'miDespensa_zones';
         const HISTORY_KEY = 'miDespensa_history';
         // Zonas por defecto para empezar (incluye las que has mencionado)
-        const INITIAL_DEFAULT_ZONES = ['Nevera', 'Armario', 'Congelador', 'Especieros', 'Baño']; 
+        const INITIAL_DEFAULT_ZONES = ['Nevera', 'Armario', 'Congelador', 'Especieros', 'Baño', 'Otros']; 
         
         let allItems = [];
         let allZones = [];
@@ -14,11 +178,9 @@
         const pantryListEl = document.getElementById('pantry-list');
         const shoppingListEl = document.getElementById('shopping-list');
         const historyListEl = document.getElementById('history-list');
-        const userIdDisplayEl = document.getElementById('user-id-display');
         const modalEl = document.getElementById('message-modal');
         const modalTitleEl = document.getElementById('modal-title');
         const modalBodyEl = document.getElementById('modal-body');
-        const archiveButton = document.getElementById('archive-button');
         const zonesListEl = document.getElementById('zones-list');
         
         // --- LÓGICA DE LOCAL STORAGE (Base de Datos Local) ---
@@ -32,11 +194,12 @@
                 
                 // Si no hay zonas guardadas, inicializa con las por defecto.
                 if (savedZones.length === 0) {
-                    allZones = [...INITIAL_DEFAULT_ZONES].sort();
+                    // Usar un Set para evitar duplicados si INITIAL_DEFAULT_ZONES tiene "Otros" y lo queremos mantener ordenado
+                    allZones = [...new Set(INITIAL_DEFAULT_ZONES)].sort();
                     saveZones(); 
                 } else {
-                    // Si ya hay zonas, las carga y las ordena.
-                    allZones = savedZones.sort();
+                    // Si ya hay zonas, las carga, añade 'Otros' si falta, y las ordena.
+                    allZones = [...new Set([...savedZones, 'Otros'])].sort();
                 }
 
                 // Renderiza la interfaz inicial
@@ -91,6 +254,12 @@
         };
 
         window.deleteCustomZone = function(zoneToDelete) {
+            // No permitir eliminar la zona "Otros"
+            if (zoneToDelete === 'Otros') {
+                showModal("Error", "La zona 'Otros' es necesaria y no se puede eliminar.", 'error');
+                return;
+            }
+            
             const initialLength = allZones.length;
             
             // Advertencia para zonas por defecto
@@ -113,7 +282,6 @@
                 saveZones();
                 showModal("Éxito", `Zona "${zoneToDelete}" eliminada. Los productos se movieron a "Otros".`, 'success');
             } else {
-                // Esto solo debería ocurrir si se intenta eliminar una zona que no existe, lo cual es raro
                 showModal("Error", "No se pudo eliminar la zona.", 'error');
             }
         };
@@ -128,18 +296,25 @@
 
             allZones.forEach(zone => {
                 const isDefault = INITIAL_DEFAULT_ZONES.includes(zone);
+                const isOther = zone === 'Otros';
+
                 const li = document.createElement('li');
                 li.className = 'flex justify-between items-center p-3 rounded-lg bg-gray-50 border border-gray-200';
                 
                 li.innerHTML = `
                     <span class="text-gray-800">${zone}</span>
                     <div>
-                        ${isDefault ? 
+                        ${isOther ? 
+                            '<span class="text-xs text-gray-500 mr-2">No editable</span>' : ''
+                        }
+                        ${!isOther && isDefault ? 
                             '<span class="text-xs text-gray-500 mr-2">Predeterminado</span>' : ''
                         }
-                        <button onclick="deleteCustomZone('${zone.replace(/'/g, "\\'")}')" class="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition duration-150" title="Eliminar Zona">
-                            <svg class="icon w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
-                        </button>
+                        ${!isOther ? `
+                            <button onclick="deleteCustomZone('${zone.replace(/'/g, "\\'")}')" class="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition duration-150" title="Eliminar Zona">
+                                <svg class="icon w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
+                            </button>
+                        ` : ''}
                     </div>
                 `;
                 zonesListEl.appendChild(li);
@@ -150,25 +325,18 @@
             const selectEl = document.getElementById('product-zone');
             selectEl.innerHTML = '';
             
-            // Si la lista de zonas está vacía (muy improbable con la carga inicial), al menos ponemos "Otros"
-            if (allZones.length === 0) {
-                 allZones = ['Otros']; 
-            }
+            // Asegurarse de que "Otros" siempre esté y no haya duplicados
+            const uniqueZones = [...new Set([...allZones, 'Otros'])].sort();
             
+            // Reasignar allZones por si se perdió "Otros" o el orden
+            allZones = uniqueZones; 
+
             allZones.forEach(zone => {
                 const option = document.createElement('option');
                 option.value = zone;
                 option.textContent = zone;
                 selectEl.appendChild(option);
             });
-             
-            // Asegurarse de que "Otros" está presente si no fue añadido previamente.
-            if (!allZones.includes('Otros')) {
-                const optionOther = document.createElement('option');
-                optionOther.value = 'Otros';
-                optionOther.textContent = 'Otros';
-                selectEl.appendChild(optionOther);
-            }
         }
         
         // --- LÓGICA DE PRODUCTOS (ITEMS) (ADAPTADA A LOCAL STORAGE) ---
@@ -182,15 +350,374 @@
         /** Renderiza la lista completa de productos agrupados por zona (Pestaña Despensa) */
         function renderItems(items) {
             pantryListEl.innerHTML = '';
-            // No limpiar shoppingListEl aquí, se hace en renderShoppingList()
 
             if (items.length === 0) {
                 pantryListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Tu despensa está vacía! Añade algunos productos arriba.</p>';
-                renderShoppingList(); // Asegurar que también se limpia la lista de la compra
+                renderShoppingList(); 
                 return;
             }
 
             // 1. Renderizar Pestaña Despensa (Inventario Completo)
             const groups = items.reduce((acc, item) => {
                 // Usar 'Otros' si la zona no existe en la lista actual de zonas
-                const zone = item.zone && allZones.includes(item.zone) ? item.zone :
+                const zone = item.zone && allZones.includes(item.zone) ? item.zone : 'Otros';
+                if (!acc[zone]) acc[zone] = [];
+                acc[zone].push(item);
+                return acc;
+            }, {});
+
+            const allPossibleZones = [...new Set([...allZones, ...Object.keys(groups)])]; 
+            
+            // Ordenar: Otros al final, el resto alfabético
+            const sortedZones = allPossibleZones.sort((a, b) => {
+                if (a === 'Otros') return 1;
+                if (b === 'Otros') return -1;
+                return a.localeCompare(b);
+            });
+
+            sortedZones.forEach(zone => {
+                const zoneItems = groups[zone] || []; 
+                
+                if (zoneItems.length === 0) return; 
+
+                const zoneEl = document.createElement('div');
+                zoneEl.className = 'mb-6 p-4 border border-gray-100 rounded-lg shadow-sm';
+
+                const neededCount = zoneItems.filter(item => item.needed).length;
+                const zoneHeaderClass = neededCount > 0 ? 'text-danger font-bold' : 'text-gray-700';
+
+                zoneEl.innerHTML = `
+                    <h3 class="text-xl ${zoneHeaderClass} border-b pb-2 mb-3 flex justify-between items-center">
+                        ${zone}
+                        <span class="text-sm font-normal text-gray-500">(${neededCount} necesarios)</span>
+                    </h3>
+                    <ul class="space-y-2"></ul>
+                `;
+                const ul = zoneEl.querySelector('ul');
+
+                zoneItems.sort((a, b) => {
+                    if (a.needed !== b.needed) return a.needed ? -1 : 1; 
+                    return a.name.localeCompare(b.name); 
+                });
+
+                zoneItems.forEach(item => {
+                    const li = document.createElement('li');
+                    const itemClass = item.needed ? 'needed-item' : 'stocked-item';
+                    const itemInitial = item.name.charAt(0).toUpperCase();
+                    
+                    li.className = `p-3 rounded-lg flex flex-col md:flex-row justify-between items-center transition duration-150 ease-in-out hover:shadow-md ${itemClass}`;
+                    li.id = `item-${item.id}`; 
+                    
+                    const neededIcon = `<svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 12v-3a3 3 0 0 1 3 -3h13a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-13a3 3 0 0 1 -3 -3v-3" /><path d="M8 11.5l2 2l4 -4" /></svg>`;
+                    const stockedIcon = `<svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>`;
+
+                    // Renderizar opciones de zonas para el modo edición
+                    const zoneOptions = allZones.map(z => 
+                        `<option value="${z}" ${item.zone === z ? 'selected' : ''}>${z}</option>`
+                    ).join('');
+
+
+                    // Estructura del contenido (Modo Lectura)
+                    const displayMode = `
+                        <div id="display-mode-${item.id}" class="flex items-center w-full md:w-auto mb-2 md:mb-0 justify-between md:justify-start">
+                            <div class="w-10 h-10 ${item.needed ? 'bg-danger/20 text-danger' : 'bg-secondary/20 text-secondary'} font-bold rounded-full flex items-center justify-center text-lg mr-4 flex-shrink-0">
+                                ${itemInitial}
+                            </div>
+                            <span class="text-lg flex-1">${item.name} <span class="text-sm text-gray-400">(${item.zone})</span></span>
+                        </div>
+                    `;
+
+                    // Estructura del contenido (Modo Edición - oculta inicialmente)
+                    const editMode = `
+                        <div id="edit-mode-${item.id}" class="hidden w-full space-y-2 md:space-y-0 md:flex md:space-x-2 flex-col md:flex-row items-center">
+                            <input type="text" id="edit-name-${item.id}" value="${item.name.replace(/"/g, '&quot;')}" 
+                                class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-2/3 focus:ring-primary focus:border-primary">
+                            <select id="edit-zone-${item.id}" class="p-1 border border-gray-300 rounded-lg text-base w-full md:w-1/3 bg-white focus:ring-primary focus:border-primary">
+                                ${zoneOptions}
+                            </select>
+                        </div>
+                    `;
+
+                    // Botones de acción (Modo Lectura)
+                    const actionButtons = `
+                        <div id="action-buttons-${item.id}" class="flex space-x-2 flex-shrink-0 mt-2 md:mt-0">
+                            <button onclick="event.stopPropagation(); toggleNeeded('${item.id}', ${item.needed})" 
+                                class="p-2 rounded-full ${item.needed ? 'bg-secondary text-white hover:bg-emerald-600' : 'bg-danger text-white hover:bg-red-600'}" title="${item.needed ? 'Marcar como en Stock' : 'Marcar como Necesario'}">
+                                ${item.needed ? stockedIcon : neededIcon}
+                            </button>
+                            <button onclick="event.stopPropagation(); toggleEditMode('${item.id}')" 
+                                class="p-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300" title="Editar">
+                                <svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/></svg>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteItem('${item.id}')" 
+                                class="p-2 rounded-full bg-danger/20 text-danger hover:bg-danger/30" title="Eliminar">
+                                <svg class="icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4 -6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
+                            </button>
+                        </div>
+                    `;
+
+                    // Botones de acción (Modo Edición - oculta inicialmente)
+                    const saveButtons = `
+                        <div id="save-buttons-${item.id}" class="hidden flex space-x-2 flex-shrink-0 mt-2 md:mt-0">
+                            <button onclick="event.stopPropagation(); saveEdit('${item.id}')" 
+                                class="p-2 rounded-lg bg-secondary text-white hover:bg-emerald-600 font-semibold" title="Guardar Cambios">
+                                Guardar
+                            </button>
+                            <button onclick="event.stopPropagation(); toggleEditMode('${item.id}', true)" 
+                                class="p-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold" title="Cancelar Edición">
+                                Cancelar
+                            </button>
+                        </div>
+                    `;
+
+                    li.innerHTML = displayMode + editMode + actionButtons + saveButtons;
+                    ul.appendChild(li);
+                });
+                pantryListEl.appendChild(zoneEl);
+            });
+            
+            // 2. Renderizar Pestaña Lista de la Compra
+            renderShoppingList();
+        }
+        
+        /** Renderiza solo la lista de la compra (needed: true) */
+        function renderShoppingList() {
+            shoppingListEl.innerHTML = '';
+            const shoppingItems = allItems.filter(item => item.needed).sort((a, b) => a.name.localeCompare(b.name));
+
+            if (shoppingItems.length === 0) {
+                shoppingListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">¡Tu lista de la compra está vacía! Marca productos como necesarios.</p>';
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            ul.className = 'space-y-2';
+
+            shoppingItems.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'needed-item p-4 rounded-lg flex justify-between items-center transition duration-150 ease-in-out hover:shadow-md cursor-pointer';
+                li.onclick = () => toggleNeeded(item.id, true);
+                
+                li.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-danger/20 text-danger font-bold rounded-full flex items-center justify-center text-lg mr-4 flex-shrink-0">
+                            ${item.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span class="text-lg font-bold flex-1">${item.name}</span>
+                    </div>
+                    <span class="text-sm text-gray-600 bg-white/50 p-1 px-3 rounded-full">${item.zone}</span>
+                `;
+                ul.appendChild(li);
+            });
+            shoppingListEl.appendChild(ul);
+        }
+
+        /** Renderiza el historial semanal */
+        function renderHistory() {
+            historyListEl.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyListEl.innerHTML = '<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-lg">Aún no has archivado ninguna semana.</p>';
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            ul.className = 'space-y-4';
+
+            history.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(record => {
+                const li = document.createElement('li');
+                li.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200';
+                
+                // Contar cuántos ítems estaban como "needed" antes de archivar (que se compraron)
+                const boughtCount = record.items.filter(item => item.needed).length;
+                
+                li.innerHTML = `
+                    <h4 class="text-lg font-bold text-gray-800 border-b pb-2 mb-2">Semana del ${new Date(record.date).toLocaleDateString()}</h4>
+                    <p class="text-gray-700">🛒 <span class="font-semibold">${boughtCount} productos</span> se marcaron como comprados.</p>
+                `;
+
+                ul.appendChild(li);
+            });
+            historyListEl.appendChild(ul);
+        }
+
+        /** Agrega un nuevo producto. */
+        window.addItem = function() {
+            const nameInput = document.getElementById('product-name');
+            const zoneInput = document.getElementById('product-zone');
+            const name = nameInput.value.trim();
+            const zone = zoneInput.value;
+
+            if (!name) {
+                showModal("Error", "Por favor, introduce el nombre del producto.", 'error');
+                return;
+            }
+            
+            const newItem = {
+                id: generateId(), 
+                name: name,
+                zone: zone,
+                needed: false, // Por defecto, está en stock
+                createdAt: new Date().toISOString()
+            };
+
+            allItems.push(newItem);
+            saveItems();
+            nameInput.value = ''; // Limpiar el campo
+            showModal("Éxito", `"${name}" añadido a la despensa en ${zone}.`, 'success');
+        };
+
+        /** Cambia el estado de 'needed' (necesario/en stock). */
+        window.toggleNeeded = function(id, isCurrentlyNeeded) {
+            const itemIndex = allItems.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                allItems[itemIndex].needed = !isCurrentlyNeeded;
+                saveItems();
+                showModal("Actualizado", `${allItems[itemIndex].name} marcado como ${isCurrentlyNeeded ? 'En Stock' : 'Necesario'}.`, 'success');
+            }
+        };
+
+        /** Alterna entre modo de visualización y edición. */
+        window.toggleEditMode = function(id, forceClose = false) {
+            const displayDiv = document.getElementById(`display-mode-${id}`);
+            const editDiv = document.getElementById(`edit-mode-${id}`);
+            const actionBtns = document.getElementById(`action-buttons-${id}`);
+            const saveBtns = document.getElementById(`save-buttons-${id}`);
+            
+            if (forceClose || !displayDiv.classList.contains('hidden')) {
+                // Modo Edición -> Modo Visualización
+                displayDiv.classList.remove('hidden');
+                editDiv.classList.add('hidden');
+                actionBtns.classList.remove('hidden');
+                saveBtns.classList.add('hidden');
+            } else {
+                // Modo Visualización -> Modo Edición
+                displayDiv.classList.add('hidden');
+                editDiv.classList.remove('hidden');
+                actionBtns.classList.add('hidden');
+                saveBtns.classList.remove('hidden');
+            }
+        };
+
+        /** Guarda los cambios de edición. */
+        window.saveEdit = function(id) {
+            const itemIndex = allItems.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                const newName = document.getElementById(`edit-name-${id}`).value.trim();
+                const newZone = document.getElementById(`edit-zone-${id}`).value;
+
+                if (!newName) {
+                    showModal("Error", "El nombre del producto no puede estar vacío.", 'error');
+                    return;
+                }
+
+                allItems[itemIndex].name = newName;
+                allItems[itemIndex].zone = newZone;
+                saveItems();
+                toggleEditMode(id, true); // Volver a modo visualización
+                showModal("Éxito", `${newName} actualizado.`, 'success');
+            }
+        };
+
+        /** Elimina un producto. */
+        window.deleteItem = function(id) {
+            if (confirm("¿Estás seguro de que quieres eliminar este producto permanentemente?")) {
+                allItems = allItems.filter(item => item.id !== id);
+                saveItems();
+                showModal("Eliminado", "Producto eliminado de la despensa.", 'info');
+            }
+        };
+
+        /** Archiva la semana y resetea la lista de la compra. */
+        window.archiveAndReset = function() {
+            if (!confirm("Esto archivará el estado actual (productos comprados) y MANTENDRÁ en el inventario el resto.\nLos productos 'necesarios' se marcarán como 'en stock'. ¿Deseas continuar?")) {
+                return;
+            }
+
+            // Crear registro de historial (solo guardamos los datos relevantes de la semana)
+            history.push({
+                date: new Date().toISOString(),
+                // Guardamos el estado "antes" de resetear, para saber cuántos estaban "needed" (que se acaban de comprar)
+                items: allItems.filter(item => item.needed).map(item => ({ name: item.name, needed: true, zone: item.zone })),
+            });
+            saveHistory();
+
+            // Marcar todos los productos que estaban como 'needed' como 'en stock' (asumimos que se han comprado)
+            allItems.forEach(item => {
+                if (item.needed) {
+                    item.needed = false; 
+                }
+            });
+            
+            saveItems(); 
+            showModal("Semana Archivada", "El inventario ha sido reseteado. Los productos 'necesarios' se han marcado como 'en stock'.", 'success');
+        };
+
+
+        // --- UTILIDADES DEL DOM (Mismo código de los modales) ---
+
+        /** Muestra el modal personalizado. */
+        function showModal(title, body, type = 'info') {
+            modalTitleEl.textContent = title;
+            modalBodyEl.textContent = body;
+            modalTitleEl.className = 'text-xl font-bold mb-3 ' + (type === 'error' ? 'text-danger' : (type === 'success' ? 'text-secondary' : 'text-primary'));
+            
+            let closeBtn = modalEl.querySelector('.bg-white button');
+            if (!closeBtn) {
+                 closeBtn = document.createElement('button');
+                 closeBtn.onclick = window.closeModal;
+                 closeBtn.className = 'bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 w-full';
+                 closeBtn.textContent = 'Cerrar';
+                 modalEl.querySelector('.bg-white').appendChild(closeBtn);
+            }
+            
+            modalEl.classList.remove('hidden');
+            modalEl.classList.add('flex');
+        }
+
+        /** Cierra el modal personalizado. */
+        window.closeModal = function() {
+            modalEl.classList.add('hidden');
+            modalEl.classList.remove('flex');
+            renderItems(allItems); 
+        }
+
+        /** Cierra el modal de gestión de zonas. */
+        window.closeZoneManagementModal = function() {
+            document.getElementById('zone-management-modal').classList.add('hidden');
+            document.getElementById('zone-management-modal').classList.remove('flex');
+        }
+
+        /** Muestra el modal de gestión de zonas. */
+        window.showZoneManagementModal = function() {
+            document.getElementById('zone-management-modal').classList.remove('hidden');
+            document.getElementById('zone-management-modal').classList.add('flex');
+            renderZoneManagementModal(); // Asegura que el modal siempre esté actualizado
+        }
+        
+        /** Control de cambio de pestañas. */
+        window.changeTab = function(tabName) {
+            const tabs = ['pantry', 'shopping', 'history'];
+            tabs.forEach(tab => {
+                document.getElementById(`${tab}-tab`).classList.add('hidden');
+                document.getElementById(`tab-${tab}-btn`).classList.remove('active');
+            });
+
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}-btn`).classList.add('active');
+            
+            // Asegurarse de que las listas se actualicen al cambiar de pestaña
+            renderItems(allItems);
+            renderShoppingList();
+            renderHistory();
+        }
+
+        // --- INICIALIZACIÓN ---
+        window.onload = function() {
+            loadAllFromLocalStorage();
+            changeTab('pantry'); // Asegura que la pestaña inicial sea 'pantry'
+        };
+
+    </script>
+</body>
+</html>
